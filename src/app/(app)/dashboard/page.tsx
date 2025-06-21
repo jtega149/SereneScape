@@ -5,9 +5,9 @@ import { Brain, Headphones, Wind, Sparkles, PlayCircle } from "lucide-react";
 import Image from "next/image";
 
 const quickAccessItems = [
-  { title: "Stress Relief Meditation", href: "/meditations/stress-relief", icon: PlayCircle, category: "Meditation" , image: "https://placehold.co/600x400.png", imageHint: "calm nature" },
-  { title: "Focus Breathing", href: "/breathing/focus", icon: PlayCircle, category: "Breathing", image: "https://placehold.co/600x400.png", imageHint: "abstract waves" },
-  { title: "Rain Sounds", href: "/soundscapes/rain", icon: PlayCircle, category: "Soundscape", image: "https://placehold.co/600x400.png", imageHint: "rain window" },
+  { title: "Stress Relief Meditation", href: "/meditations/stress-relief", icon: PlayCircle, category: "Meditation" , image: "/images/stress-relief-meditation.png", imageHint: "calm nature" },
+  { title: "Focus Breathing", href: "/breathing/focus", icon: PlayCircle, category: "Breathing", image: "/images/focus-breathing.png", imageHint: "abstract waves" },
+  { title: "Rain Sounds", href: "/soundscapes/rain", icon: PlayCircle, category: "Soundscape", image: "/images/rain-cover.png", imageHint: "rain window" },
 ];
 
 export default function DashboardPage() {
