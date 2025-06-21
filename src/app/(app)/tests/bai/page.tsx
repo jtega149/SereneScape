@@ -7,7 +7,29 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const NUM_QUESTIONS = 21;
-const temporaryQuestions = Array.from({ length: NUM_QUESTIONS }, (_, i) => `Temporary Question ${i + 1}`);
+const questions = [
+    "Have you had any feeling of numbness or tingling?",
+    "Have you been feeling hot?",
+    "Have you been feeling wobbliness in the legs?",
+    "Have you been unable to relax?",
+    "Have you been in fear of the worst happening?",
+    "Has your heart been pounding / racing?",
+    "Have you veen feeling unsteady?",
+    "Have you been feeling terrifed or afraid?",
+    "Have you been feeling nervous?",
+    "Have you experienced feelings of choking lately?",
+    "Do you experience frequent hand trembling?",
+    "Do you feel shaky at times?",
+    "Do you have a fear of losing control?",
+    "Have you had difficulty in breathing?",
+    "Do you have fears of dying?",
+    "Are you scared?",
+    "Have you been expericing indigestion?",
+    "Have you veen feeling lightheaded or like you might faint?",
+    "Do you experience face flushing?",
+    "Have you had the cold sweats?",
+    "Do you experience unusual diziness?"
+];
 
 export default function BaiPage() {
   const [showTest, setShowTest] = useState(false);
@@ -71,7 +93,7 @@ export default function BaiPage() {
 
       {showTest && (
         <div className="space-y-6">
-          {temporaryQuestions.map((question, index) => (
+          {questions.map((question, index) => (
             <Card key={index}>
               <CardContent className="pt-6">
                 <p className="mb-4 font-semibold">{`${index + 1}. ${question}`}</p>
