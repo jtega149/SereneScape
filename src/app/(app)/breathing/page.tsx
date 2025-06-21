@@ -52,7 +52,40 @@ export default function BreathingPage() {
   const [isRunning, setIsRunning] = React.useState(false);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [timeLeft, setTimeLeft] = React.useState(selectedTechnique.pattern[0].duration);
+  const inhaleExhaleAudioRef = React.useRef<HTMLAudioElement | null>(null);
+  const holdAudioRef = React.useRef<HTMLAudioElement | null>(null);
   const [cycleCount, setCycleCount] = React.useState(0);
+
+  React.useEffect(() => {
+    inhaleExhaleAudioRef.current = new Audio("/sounds/inhale_exhale.mp3");
+    holdAudioRef.current = new Audio("/sounds/hold.mp3");
+
+    inhaleExhaleAudioRef.current.load();
+    holdAudioRef.current.load();
+  }, []);
+  
+  const playInstructionSound = (instruction: string) => {
+    const isHold = instruction.toLowerCase().includes("hold");
+    const audio = isHold ? holdAudioRef.current : inhaleExhaleAudioRef.current; 
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
+  };
+
+  const currentInstructionForSound = selectedTechnique.pattern[currentStep].instruction;
+
+React.useEffect(() => {
+  if (!isRunning || timeLeft <= 0) return;
+
+  const isHold = currentInstructionForSound.toLowerCase().includes("hold");
+  const audio = isHold ? holdAudioRef.current : inhaleExhaleAudioRef.current;
+
+  if (audio) {
+    audio.currentTime = 0;
+    audio.play();
+  }
+}, [timeLeft, isRunning, currentInstructionForSound]);
 
   React.useEffect(() => {
     if (!isRunning) return;
@@ -60,6 +93,7 @@ export default function BreathingPage() {
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime > 1) {
+          //playInstructionSound(selectedTechnique.pattern[currentStep].instruction);
           return prevTime - 1;
         } else {
             setCurrentStep((prevStep) => {
@@ -73,6 +107,7 @@ export default function BreathingPage() {
                     }
                   return newCount;
                 });
+                //playInstructionSound(selectedTechnique.pattern[0].instruction);
                 setTimeLeft(selectedTechnique.pattern[0].duration); // restart for next cycle if continuing
                 return 0; // reset step index
               } else {
