@@ -18,6 +18,52 @@ export default function DashboardPage() {
 
   const [moodInput, setMoodInput] = useState('')
 
+  const handleMoodSubmit = async () => {
+  try {
+    // 1. Classify mood
+    const classifyRes = await fetch('/api/classify-mood', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: moodInput }),
+    });
+
+    const classifyData = await classifyRes.json();
+
+    if (classifyData.category) {
+      const emojiMap = {
+        positive: '😊',
+        neutral: '😐',
+        negative: '😞',
+      };
+      
+    if (classifyData.category) {
+      const category = classifyData.category as 'positive' | 'neutral' | 'negative';
+      console.log(`🧠 User mood is classified as: ${category} ${emojiMap[category]}`);
+    }
+    } else {
+      console.error('❌ Classification failed:', classifyData.error);
+    }
+
+    // 2. Generate mood recap
+    const recapRes = await fetch('/api/generate-mood-recap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: moodInput }),
+    });
+
+    const recapData = await recapRes.json();
+
+    if (recapData.message) {
+      console.log(`📝 Recap message: ${recapData.message}`);
+    } else {
+      console.error('❌ Recap generation failed:', recapData.error);
+    }
+
+  } catch (err) {
+    console.error('❌ Mood submit failed:', err);
+  }
+};
+
   return (
     <div className="space-y-8">
       <section className="bg-card p-8 rounded-lg shadow-lg">
@@ -36,7 +82,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="p-6">
                 <Input value={moodInput} onChange={e => setMoodInput(e.target.value)} placeholder="Type your mood..." className="border p-2 rounded w-full" />
-                <Button className="mt-4">Submit</Button>
+                <Button className="mt-4" onClick={handleMoodSubmit}>Submit</Button>
               </CardContent>
             </Card>
         </div>
