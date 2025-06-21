@@ -21,9 +21,25 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
+import { useRouter } from 'next/navigation';
+
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    const res = await fetch('/api/auth/logout', {
+        method: 'POST',
+    });
+
+    if (res.ok) {
+      localStorage.removeItem("supabase.access_token");
+      localStorage.removeItem("supabase.refresh_token");
+      router.push("/login");  
+    }
+  }
 
   return (
     <SidebarProvider defaultOpen>
@@ -68,7 +84,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <span className="text-sm font-medium text-foreground">Serene User</span>
                   <span className="text-xs text-muted-foreground">user@example.com</span>
                 </div>
-                <Button variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden">
+                <Button onClick={handleLogout} variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden">
                   <LogOut className="h-4 w-4" />
                 </Button>
             </div>
