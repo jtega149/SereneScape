@@ -20,6 +20,8 @@ export default function DashboardPage() {
   const [moodInput, setMoodInput] = useState('')
   const [recapMessage, setRecapMessage] = useState('');
   const [isThinking, setIsThinking] = useState(false);
+  const [meditationSuggestion, setMeditationSuggestion] = useState('');
+
 
 
   const handleMoodSubmit = async () => {
@@ -73,6 +75,30 @@ export default function DashboardPage() {
   }
 
 };
+
+const handleSmartFlow = async (type: string) => {
+  if (type === 'meditations') {
+    try {
+      const res = await fetch('/api/generate-meditation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: moodInput }),
+      });
+
+      const data = await res.json();
+      if (data.suggestion) {
+        console.log(`🧘 AI Meditation Suggestion: ${data.suggestion}`);
+        setMeditationSuggestion(data.suggestion)
+      } else {
+        console.error('❌ Failed to get meditation suggestion:', data.error);
+      }
+    } catch (err) {
+      console.error('❌ Meditation flow failed:', err);
+    }
+  }
+
+  // Add logic for other flows later (soundscapes, breathing)
+};
   const [submitText, setText] = useState('Type your mood')
 
   const bruh = () => {
@@ -112,7 +138,8 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row gap-3 px-6 pb-6 mt-4">
                 <Button onClick={() => handleSmartFlow('meditations')} variant="outline">
                   🧘 Meditations
-                </Button>
+                </Button> 
+                {meditationSuggestion && (<div className="text-muted-foreground px-6 text-base mt-2"> {meditationSuggestion}</div>)}
                 <Button onClick={() => handleSmartFlow('soundscapes')} variant="outline">
                   🎧 Soundscapes
                 </Button>
