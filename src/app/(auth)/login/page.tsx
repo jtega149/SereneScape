@@ -36,14 +36,17 @@ export default function LoginPage() {
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("supabase.access_token", data.access_token);
-        localStorage.setItem("supabase.refresh_token", data.refresh_token);
+        localStorage.setItem("supabase.access_token", data.session.access_token);
+        localStorage.setItem("supabase.refresh_token", data.session.refresh_token);
+        localStorage.setItem("serene.user.email", data.user.email);
+        localStorage.setItem("serene.user.name", data.user.name || "");
         router.push('/dashboard'); // redirect to protected area
       } else {
         const data = await res.json();
         setError(data.message || 'Login failed');
       }
     } catch (err) {
+      console.log(err)
       setError('Unexpected error occurred');
     } finally {
       setLoading(false);

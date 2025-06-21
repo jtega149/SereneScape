@@ -13,8 +13,10 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     message: 'Login successful',
-    access_token: sessionData.session?.access_token,
-    refresh_token: sessionData.session?.refresh_token,
+    session: {
+      access_token: sessionData.session?.access_token,
+      refresh_token: sessionData.session?.refresh_token,
+    },
     user: sessionData.user,
   });
 }

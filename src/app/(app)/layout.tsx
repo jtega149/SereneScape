@@ -22,6 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
 import { useRouter } from 'next/navigation';
+import { useAuth } from "@/hooks/useAuth";
 
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,14 +30,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const router = useRouter()
 
+  const { user, logout } = useAuth();
+
   const handleLogout = async () => {
     const res = await fetch('/api/auth/logout', {
         method: 'POST',
     });
 
     if (res.ok) {
-      localStorage.removeItem("supabase.access_token");
-      localStorage.removeItem("supabase.refresh_token");
+      logout()
       router.push("/login");  
     }
   }
@@ -81,8 +83,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <AvatarFallback>SS</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-                  <span className="text-sm font-medium text-foreground">Serene User</span>
-                  <span className="text-xs text-muted-foreground">user@example.com</span>
+                  <span className="text-sm font-medium text-foreground">{user?.name || "Serene User"}</span>
+                  <span className="text-xs text-muted-foreground">{user?.email}</span>
                 </div>
                 <Button onClick={handleLogout} variant="ghost" size="icon" className="ml-auto group-data-[collapsible=icon]:hidden">
                   <LogOut className="h-4 w-4" />
