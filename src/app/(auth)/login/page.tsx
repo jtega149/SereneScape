@@ -15,31 +15,33 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SunMoon } from 'lucide-react';
 
-export default function SignupPage() {
-  const [fullName, setFullName] = useState('');
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function handleSignup(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch('/api/signup', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       if (res.ok) {
-        router.push('/protected'); // Redirect after signup
+        const data = await res.json();
+        localStorage.setItem("supabase.access_token", data.access_token);
+        localStorage.setItem("supabase.refresh_token", data.refresh_token);
+        router.push('/dashboard'); // redirect to protected area
       } else {
         const data = await res.json();
-        setError(data.message || 'Signup failed');
+        setError(data.message || 'Login failed');
       }
     } catch (err) {
       setError('Unexpected error occurred');
@@ -56,23 +58,13 @@ export default function SignupPage() {
             <SunMoon className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-headline font-bold text-foreground">SereneScape</h1>
           </div>
-          <CardTitle className="text-2xl text-center">Sign Up</CardTitle>
+          <CardTitle className="text-2xl text-center">Login</CardTitle>
           <CardDescription className="text-center">
-            Enter your information to create an account
+            Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignup} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="full-name">Full name</Label>
-              <Input
-                id="full-name"
-                placeholder="Serene User"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
+          <form onSubmit={handleLogin} className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -85,7 +77,12 @@ export default function SignupPage() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <Link href="#" className="ml-auto inline-block text-sm underline">
+                  Forgot your password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -95,14 +92,14 @@ export default function SignupPage() {
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating Account...' : 'Create an account'}
+              {loading ? 'Logging in...' : 'Login'}
             </Button>
             {error && <p className="text-sm text-red-600 text-center">{error}</p>}
           </form>
           <div className="mt-4 text-center text-sm">
-            Already have an account?{' '}
-            <Link href="/login" className="underline">
-              Login
+            Don&apos;t have an account?{' '}
+            <Link href="/signup" className="underline">
+              Sign up
             </Link>
           </div>
         </CardContent>

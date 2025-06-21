@@ -1,8 +1,21 @@
-import Link from 'next/link';
+'use client'
+
 import { Button } from '@/components/ui/button';
 import { ArrowRight, SunMoon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
+
+  const router = useRouter();
+
+  const handleEnter = () => {
+    const token = localStorage.getItem("supabase.access_token");
+    if (token) {
+      router.push("/dashboard");  // goes to (app) stack
+    } else {
+      router.push("/login");      // goes to (auth) stack
+    }
+  };
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center p-6 ">
       <header className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center">
@@ -21,11 +34,9 @@ export default function LandingPage() {
         <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-10 font-body">
           Discover a world of calm with guided meditations, soothing soundscapes, and personalized affirmations. Your journey to mindfulness starts here.
         </p>
-        <Button asChild size="lg" className="font-headline text-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <Link href="/dashboard">
-            Enter SereneScape
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Link>
+        <Button onClick={handleEnter} size="lg" className="font-headline text-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+          Enter SereneScape
+          <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </main>
 
