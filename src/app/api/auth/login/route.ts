@@ -11,12 +11,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: loginError.message }, { status: 401 });
   }
 
+  const name = sessionData.user?.user_metadata?.name || '';
+
   return NextResponse.json({
     message: 'Login successful',
     session: {
       access_token: sessionData.session?.access_token,
       refresh_token: sessionData.session?.refresh_token,
     },
-    user: sessionData.user,
+    user: {
+      email: sessionData.user?.email,
+      name,
+    }
   });
 }
