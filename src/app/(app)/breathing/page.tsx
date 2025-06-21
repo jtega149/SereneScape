@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Play, Pause, RotateCcw, Info } from "lucide-react";
@@ -10,8 +10,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 interface BreathingTechnique {
   id: string;
   name: string;
-  pattern: { instruction: string; duration: number }[]; // duration in seconds
+  pattern: { instruction: string; duration: number }[];
   description: string;
+  supportsCustomization: boolean;
 }
 
 const techniques: BreathingTechnique[] = [
@@ -24,7 +25,8 @@ const techniques: BreathingTechnique[] = [
       { instruction: "Exhale", duration: 4 },
       { instruction: "Hold", duration: 4 },
     ],
-    description: "Balances the nervous system, reduces stress, and improves focus. Involves equal parts inhalation, hold, exhalation, and hold.",
+    description: "Balances the nervous system, reduces stress, and improves focus.",
+    supportsCustomization: true,
   },
   {
     id: "478",
@@ -34,7 +36,8 @@ const techniques: BreathingTechnique[] = [
       { instruction: "Hold", duration: 7 },
       { instruction: "Exhale", duration: 8 },
     ],
-    description: "Promotes relaxation and can help with sleep. Inhale for 4, hold for 7, exhale for 8.",
+    description: "Promotes relaxation and can help with sleep.",
+    supportsCustomization: false,
   },
   {
     id: "deep",
@@ -43,170 +46,189 @@ const techniques: BreathingTechnique[] = [
       { instruction: "Inhale Deeply", duration: 5 },
       { instruction: "Exhale Slowly", duration: 7 },
     ],
-    description: "Encourages full oxygen exchange, can slow heartbeat and lower blood pressure. Focus on belly rising and falling.",
+    description: "Encourages full oxygen exchange and reduces stress.",
+    supportsCustomization: true,
   },
 ];
 
 export default function BreathingPage() {
-  const [selectedTechnique, setSelectedTechnique] = React.useState<BreathingTechnique>(techniques[0]);
+  const [selectedTechnique, setSelectedTechnique] = React.useState(techniques[0]);
+  const [customDurations, setCustomDurations] = React.useState<{ [key: number]: number }>({});
   const [isRunning, setIsRunning] = React.useState(false);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [timeLeft, setTimeLeft] = React.useState(selectedTechnique.pattern[0].duration);
+
+  const [userDefinedCycles, setUserDefinedCycles] = React.useState(4);
+  const [cyclesRemaining, setCyclesRemaining] = React.useState(0);
+
   const inhaleExhaleAudioRef = React.useRef<HTMLAudioElement | null>(null);
   const holdAudioRef = React.useRef<HTMLAudioElement | null>(null);
-  const [cycleCount, setCycleCount] = React.useState(0);
 
   React.useEffect(() => {
     inhaleExhaleAudioRef.current = new Audio("/sounds/inhale_exhale.mp3");
     holdAudioRef.current = new Audio("/sounds/hold.mp3");
-
-    inhaleExhaleAudioRef.current.load();
-    holdAudioRef.current.load();
   }, []);
-  
+
   const playInstructionSound = (instruction: string) => {
     const isHold = instruction.toLowerCase().includes("hold");
-    const audio = isHold ? holdAudioRef.current : inhaleExhaleAudioRef.current; 
+    const audio = isHold ? holdAudioRef.current : inhaleExhaleAudioRef.current;
     if (audio) {
       audio.currentTime = 0;
       audio.play();
     }
   };
 
-  const currentInstructionForSound = selectedTechnique.pattern[currentStep].instruction;
-
-React.useEffect(() => {
-  if (!isRunning || timeLeft <= 0) return;
-
-  const isHold = currentInstructionForSound.toLowerCase().includes("hold");
-  const audio = isHold ? holdAudioRef.current : inhaleExhaleAudioRef.current;
-
-  if (audio) {
-    audio.currentTime = 0;
-    audio.play();
-  }
-}, [timeLeft, isRunning, currentInstructionForSound]);
-
-  React.useEffect(() => {
-    if (!isRunning) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime > 1) {
-          //playInstructionSound(selectedTechnique.pattern[currentStep].instruction);
-          return prevTime - 1;
-        } else {
-            setCurrentStep((prevStep) => {
-              const nextStep = prevStep + 1;
-              // If we finished the last step in the pattern
-              if (nextStep === selectedTechnique.pattern.length) {
-                setCycleCount((prevCount) => {
-                  const newCount = prevCount + 1;
-                    if (newCount >= 1) {
-                      setIsRunning(false); // stop after 1 full cycle
-                    }
-                  return newCount;
-                });
-                //playInstructionSound(selectedTechnique.pattern[0].instruction);
-                setTimeLeft(selectedTechnique.pattern[0].duration); // restart for next cycle if continuing
-                return 0; // reset step index
-              } else {
-                setTimeLeft(selectedTechnique.pattern[nextStep].duration);
-                return nextStep;
-              }
-            });
-            return 0;
-          }
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isRunning, selectedTechnique, currentStep]);
-
   const handleTechniqueChange = (id: string) => {
-    const newTechnique = techniques.find(t => t.id === id) || techniques[0];
+    const newTechnique = techniques.find((t) => t.id === id)!;
     setSelectedTechnique(newTechnique);
+    setCustomDurations({});
     resetExercise(newTechnique);
-  };
-
-  const togglePlayPause = () => {
-    setIsRunning(!isRunning);
   };
 
   const resetExercise = (technique = selectedTechnique) => {
     setIsRunning(false);
     setCurrentStep(0);
     setTimeLeft(technique.pattern[0].duration);
+    setCyclesRemaining(userDefinedCycles);
+  };
+
+  const togglePlayPause = () => {
+    if (!isRunning) {
+      setCyclesRemaining(userDefinedCycles);
+      playInstructionSound(selectedTechnique.pattern[currentStep].instruction);
+    }
+    setIsRunning(!isRunning);
   };
 
   React.useEffect(() => {
+  if (!isRunning) return;
+
+  const timer = setInterval(() => {
+    setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+  }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isRunning]);
+
+  React.useEffect(() => {
+  if (!isRunning) return;
+  if (timeLeft !== 0) return;
+
+  const nextStep = currentStep + 1;
+
+  if (nextStep >= selectedTechnique.pattern.length) {
+    // End of cycle
+    if (cyclesRemaining <= 1) {
+      setIsRunning(false);
+      setCyclesRemaining(0);
+      resetExercise()
+    } else {
+      setCyclesRemaining((prev) => prev - 1);
+      setCurrentStep(0);
+      playInstructionSound(selectedTechnique.pattern[0].instruction);
+      setTimeLeft(customDurations[0] ?? selectedTechnique.pattern[0].duration);
+    }
+  } else {
+    setCurrentStep(nextStep);
+    playInstructionSound(selectedTechnique.pattern[nextStep].instruction);
+    setTimeLeft(customDurations[nextStep] ?? selectedTechnique.pattern[nextStep].duration);
+  }
+}, [timeLeft, isRunning, currentStep, cyclesRemaining, selectedTechnique, customDurations]);
+
+  React.useEffect(() => {
     resetExercise(selectedTechnique);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTechnique]);
 
-
-  const currentInstruction = selectedTechnique.pattern[currentStep].instruction;
-  const totalDuration = selectedTechnique.pattern.reduce((sum, step) => sum + step.duration, 0);
+  const totalDuration = selectedTechnique.pattern.reduce(
+    (sum, step, i) => sum + (customDurations[i] ?? step.duration),
+    0
+  );
 
   return (
     <div className="space-y-8">
-      <header className="space-y-2">
+      <header>
         <h1 className="text-4xl font-headline font-semibold text-foreground">Breathing Exercises</h1>
-        <p className="text-xl text-muted-foreground font-body">
-          Guide your breath, calm your mind.
-        </p>
+        <p className="text-lg text-muted-foreground">Guide your breath, calm your mind.</p>
       </header>
 
       <Card className="max-w-2xl mx-auto shadow-xl">
         <CardHeader>
-          <CardTitle className="text-2xl font-headline">Choose Your Technique</CardTitle>
+          <CardTitle className="text-2xl">Choose Your Technique</CardTitle>
           <Select onValueChange={handleTechniqueChange} defaultValue={selectedTechnique.id}>
-            <SelectTrigger className="w-full font-body">
+            <SelectTrigger>
               <SelectValue placeholder="Select a breathing technique" />
             </SelectTrigger>
             <SelectContent>
               {techniques.map((tech) => (
-                <SelectItem key={tech.id} value={tech.id} className="font-body">
+                <SelectItem key={tech.id} value={tech.id}>
                   {tech.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </CardHeader>
-        <CardContent className="flex flex-col items-center space-y-8">
-          <div className="w-64 h-64 bg-primary/10 rounded-full flex items-center justify-center relative overflow-hidden">
-            <div 
-              className="w-full h-full bg-primary/30 rounded-full breathing-circle-animation"
-              style={{ animationPlayState: isRunning ? 'running' : 'paused' }}
-            />
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p className="text-4xl font-bold text-primary-foreground font-headline">{timeLeft}</p>
-              <p className="text-lg text-primary-foreground/80 font-body">{currentInstruction}</p>
-            </div>
+
+        <CardContent className="space-y-6">
+          <div className="text-center space-y-2">
+            <div className="text-5xl font-bold">{timeLeft}</div>
+            <div className="text-lg">{selectedTechnique.pattern[currentStep].instruction}</div>
+            <p className="text-sm text-muted-foreground font-body">
+              Cycle: {currentStep + 1} / {selectedTechnique.pattern.length} | Total Cycle Duration: {totalDuration}s
+            </p>
+            <p className="text-sm text-muted-foreground font-body">
+              Cycles Remaining: {cyclesRemaining}
+            </p>
           </div>
 
-          <div className="flex space-x-4">
-            <Button onClick={togglePlayPause} size="lg" className="font-body w-32">
-              {isRunning ? <Pause className="mr-2 h-5 w-5" /> : <Play className="mr-2 h-5 w-5" />}
+          {selectedTechnique.supportsCustomization && (
+            <div className="grid grid-cols-2 gap-4">
+              {selectedTechnique.pattern.map((step, index) => (
+                <div key={index}>
+                  <label className="text-sm font-medium">{step.instruction}</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={customDurations[index] ?? step.duration}
+                    onChange={(e) =>
+                      setCustomDurations((prev) => ({
+                        ...prev,
+                        [index]: Number(e.target.value),
+                      }))
+                    }
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex flex-col items-center gap-2">
+          <label className="text-sm font-medium">Cycles</label>
+          <input
+            type="number"
+            min="1"
+            value={userDefinedCycles}
+            onChange={(e) => setUserDefinedCycles(Number(e.target.value))}
+            className="border rounded px-2 py-1 w-24 text-center"
+          />
+        </div>
+
+          <div className="flex space-x-4 justify-center">
+            <Button onClick={togglePlayPause}>
+              {isRunning ? <Pause className="mr-2" /> : <Play className="mr-2" />}
               {isRunning ? "Pause" : "Start"}
             </Button>
-            <Button onClick={() => resetExercise()} variant="outline" size="lg" className="font-body">
-              <RotateCcw className="mr-2 h-5 w-5" />
-              Reset
+            <Button onClick={() => resetExercise()} variant="outline">
+              <RotateCcw className="mr-2" /> Reset
             </Button>
           </div>
-          <p className="text-sm text-muted-foreground font-body">
-            Cycle: {currentStep + 1} / {selectedTechnique.pattern.length} | Total Cycle Duration: {totalDuration}s
-          </p>
         </CardContent>
       </Card>
-      
+
       <Alert className="max-w-2xl mx-auto">
         <Info className="h-5 w-5" />
-        <AlertTitle className="font-headline text-lg">{selectedTechnique.name} - How it helps</AlertTitle>
-        <AlertDescription className="font-body text-base">
-          {selectedTechnique.description}
-        </AlertDescription>
+        <AlertTitle>{selectedTechnique.name} - How it helps</AlertTitle>
+        <AlertDescription>{selectedTechnique.description}</AlertDescription>
       </Alert>
     </div>
   );
