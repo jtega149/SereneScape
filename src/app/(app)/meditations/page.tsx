@@ -7,9 +7,9 @@ import MeditationCard from "./MeditationCard";
 import { useMemo, useState } from "react";
 
 const meditations = [
-  { id: "1", title: "Morning Gratitude", duration: "~5 min", theme: "Gratitude", image: "https://placehold.co/600x400.png", imageHint: "sunrise serene", audioSrc: "/audio/morning-gratitude.mp3" },
-  { id: "2", title: "Stress Reduction", duration: "~5 min", theme: "Stress Relief", image: "https://placehold.co/600x400.png", imageHint: "calm lake", audioSrc: "/audio/stress-reduction.mp3" },
-  { id: "5", title: "Body Scan", duration: "~5 min", theme: "Awareness", image: "https://placehold.co/600x400.png", imageHint: "person meditating", audioSrc: "/audio/body-scan.mp3" },
+  { id: "1", title: "Morning Gratitude", duration: "~5 min", theme: "Gratitude", image: "/images/stress-relief-meditation.png", imageHint: "sunrise serene", audioSrc: "/audio/morning-gratitude.mp3" },
+  { id: "2", title: "Stress Reduction", duration: "~5 min", theme: "Stress Relief", image: "/images/rain-cover.png", imageHint: "calm lake", audioSrc: "/audio/stress-reduction.mp3" },
+  { id: "5", title: "Body Scan", duration: "~5 min", theme: "Awareness", image: "/images/focus-breathing.png", imageHint: "person meditating", audioSrc: "/audio/body-scan.mp3" },
 ];
 
 
