@@ -30,6 +30,10 @@ const GenerateAffirmationsOutputSchema = z.object({
 export type GenerateAffirmationsOutput = z.infer<typeof GenerateAffirmationsOutputSchema>;
 
 export async function generatePersonalizedAffirmations(input: GenerateAffirmationsInput): Promise<GenerateAffirmationsOutput> {
+  //testing 
+  //console.log('Gemini model:', 'googleai/gemini-2.0-flash');
+  //console.log('Calling Gemini with:', input);
+
   return generateAffirmationsFlow(input);
 }
 
@@ -55,4 +59,5 @@ const generateAffirmationsFlow = ai.defineFlow(
     const {output} = await prompt(input);
     return output!;
   }
+
 );
