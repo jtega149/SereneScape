@@ -1,21 +1,22 @@
+// src/app/layout.tsx
 import type { Metadata } from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from '@/components/ui/toaster';
 import { CalmingBackground } from '@/components/CalmingBackground';
 
 export const metadata: Metadata = {
   title: 'SereneScape',
   description: 'Find your calm. Your personal guide to mindfulness and relaxation.',
   icons: {
-    icon: '/favicon.ico', // Assuming a favicon might be added later
+    icon: '/favicon.ico',
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
