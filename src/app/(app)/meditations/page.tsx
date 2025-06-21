@@ -1,21 +1,27 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PlayCircle, Clock, Tag, Search, ListFilter } from "lucide-react";
+'use client'
+
+import { Search, ListFilter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Image from "next/image";
+import MeditationCard from "./MeditationCard";
+import { useMemo, useState } from "react";
 
 const meditations = [
-  { id: "1", title: "Morning Gratitude", duration: "10 min", theme: "Gratitude", image: "https://placehold.co/600x400.png", imageHint: "sunrise serene" },
-  { id: "2", title: "Stress Reduction", duration: "15 min", theme: "Stress Relief", image: "https://placehold.co/600x400.png", imageHint: "calm lake" },
-  { id: "3", title: "Deep Sleep Relaxation", duration: "20 min", theme: "Sleep", image: "https://placehold.co/600x400.png", imageHint: "night sky" },
-  { id: "4", title: "Mindful Focus", duration: "5 min", theme: "Focus", image: "https://placehold.co/600x400.png", imageHint: "zen garden" },
-  { id: "5", title: "Body Scan", duration: "25 min", theme: "Awareness", image: "https://placehold.co/600x400.png", imageHint: "person meditating" },
-  { id: "6", title: "Loving Kindness", duration: "12 min", theme: "Compassion", image: "https://placehold.co/600x400.png", imageHint: "heart nature" },
+  { id: "1", title: "Morning Gratitude", duration: "~5 min", theme: "Gratitude", image: "/images/stress-relief-meditation.png", imageHint: "sunrise serene", audioSrc: "/audio/morning-gratitude.mp3" },
+  { id: "2", title: "Stress Reduction", duration: "~5 min", theme: "Stress Relief", image: "/images/rain-cover.png", imageHint: "calm lake", audioSrc: "/audio/stress-reduction.mp3" },
+  { id: "5", title: "Body Scan", duration: "~5 min", theme: "Awareness", image: "/images/focus-breathing.png", imageHint: "person meditating", audioSrc: "/audio/body-scan.mp3" },
 ];
+
 
 export default function MeditationsPage() {
   // In a real app, search and filter would be dynamic
+
+  const [searchQuery, setSearchQuery] = useState('') 
+
+  const meditationsMemo = useMemo(() => {
+    return meditations.filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [searchQuery])
+
   return (
     <div className="space-y-8">
       <header className="space-y-2">
@@ -28,7 +34,7 @@ export default function MeditationsPage() {
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input placeholder="Search meditations..." className="pl-10 font-body" />
+          <Input placeholder="Search meditations..." onChange={e => setSearchQuery(e.target.value)} className="pl-10 font-body" />
         </div>
         <Select>
           <SelectTrigger className="w-full sm:w-[180px] font-body">
@@ -48,36 +54,8 @@ export default function MeditationsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {meditations.map((meditation) => (
-          <Card key={meditation.id} className="flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="p-0">
-              <Image 
-                src={meditation.image} 
-                alt={meditation.title} 
-                width={600} 
-                height={400} 
-                className="w-full h-48 object-cover"
-                data-ai-hint={meditation.imageHint}
-              />
-            </CardHeader>
-            <CardContent className="p-6 flex-grow">
-              <CardTitle className="text-2xl font-headline mb-2">{meditation.title}</CardTitle>
-              <div className="flex items-center text-sm text-muted-foreground mb-1">
-                <Clock className="mr-2 h-4 w-4" />
-                <span>{meditation.duration}</span>
-              </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Tag className="mr-2 h-4 w-4" />
-                <span>{meditation.theme}</span>
-              </div>
-            </CardContent>
-            <CardFooter className="p-6 pt-0">
-              <Button className="w-full font-body">
-                <PlayCircle className="mr-2 h-5 w-5" />
-                Play Session
-              </Button>
-            </CardFooter>
-          </Card>
+        {meditationsMemo.map((meditation) => (
+          <MeditationCard key={meditation.id} meditation={meditation} />
         ))}
       </div>
     </div>
