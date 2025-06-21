@@ -3,16 +3,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { supabase } from '../../../../../lib/supabaseClient'; 
 
 export async function POST(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  // const supabase = createRouteHandlerClient({ cookies });
 
   const {
-    data: { user },
+    data: { session },
     error: authError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getSession();
+  
+  const user = session?.user;
 
   if (authError || !user) {
+    console.log(user);
+    console.log(authError);
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -31,5 +36,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
+  console.log(user);
   return NextResponse.json({ message: 'Score updated successfully' }, { status: 200 });
 }
