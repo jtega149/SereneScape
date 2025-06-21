@@ -2,11 +2,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Brain, Headphones, Wind, Sparkles, PlayCircle } from "lucide-react";
+import { Brain, Headphones, Wind, Sparkles, PlayCircle, Scroll } from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import './res.css';
 
 const quickAccessItems = [
   { title: "Stress Relief Meditation", href: "/meditations/stress-relief", icon: PlayCircle, category: "Meditation" , image: "/images/stress-relief-meditation.png", imageHint: "calm nature" },
@@ -17,6 +18,11 @@ const quickAccessItems = [
 export default function DashboardPage() {
 
   const [moodInput, setMoodInput] = useState('')
+  const [submitText, setText] = useState('Type your mood')
+
+  const bruh = () => {
+    setText("Is there anything else on your mind cutie?")
+  }
 
   return (
     <div className="space-y-8">
@@ -34,9 +40,17 @@ export default function DashboardPage() {
               <CardHeader className="p-4">
                 <CardTitle>How do you feel?</CardTitle>
               </CardHeader>
+              <div className="response">
+                GEMINI API RESPONSE HERE 
+                GEMINI API RESPONSE HERE 
+                GEMINI API RESPONSE HERE 
+                GEMINI API RESPONSE HERE 
+                GEMINI API RESPONSE HERE 
+                GEMINI API RESPONSE HERE 
+              </div>
               <CardContent className="p-6">
-                <Input value={moodInput} onChange={e => setMoodInput(e.target.value)} placeholder="Type your mood..." className="border p-2 rounded w-full" />
-                <Button className="mt-4">Submit</Button>
+                <Input value={moodInput} onChange={e => setMoodInput(e.target.value)} placeholder={submitText} className="border p-2 rounded w-full" />
+                <Button className="mt-4" onClick={bruh}>Submit</Button>
               </CardContent>
             </Card>
         </div>
@@ -44,12 +58,14 @@ export default function DashboardPage() {
 
       <section>
         <h2 className="text-3xl font-headline font-medium text-foreground mb-6">Explore Features</h2>
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { title: "Meditations", href: "/meditations", icon: Brain, description: "Guided sessions for all levels." },
             { title: "Soundscapes", href: "/soundscapes", icon: Headphones, description: "Create your perfect ambiance." },
             { title: "Breathing", href: "/breathing", icon: Wind, description: "Simple exercises for calm." },
             { title: "Affirmations", href: "/affirmations", icon: Sparkles, description: "Personalized positive statements." },
+            { title: "Standardized Psychological Tests", href: "/spt", icon: Scroll, description: "Standardized Psychological Exams." },
           ].map((feature) => (
             <Card key={feature.title} className="text-center hover:shadow-xl transition-shadow duration-300">
               <CardHeader>
