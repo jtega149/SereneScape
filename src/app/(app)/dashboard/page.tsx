@@ -21,6 +21,8 @@ export default function DashboardPage() {
   const [recapMessage, setRecapMessage] = useState('');
   const [isThinking, setIsThinking] = useState(false);
   const [meditationSuggestion, setMeditationSuggestion] = useState('');
+  const [soundscapeSuggestion, setSoundscapeSuggestion] = useState('');
+
 
 
 
@@ -95,9 +97,26 @@ const handleSmartFlow = async (type: string) => {
     } catch (err) {
       console.error('❌ Meditation flow failed:', err);
     }
-  }
+  }else if (type === 'soundscapes') {
+    try {
+      const res = await fetch('/api/generate-soundscape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: moodInput }),
+      });
 
-  // Add logic for other flows later (soundscapes, breathing)
+      const data = await res.json();
+      if (data.suggestion) {
+        console.log(`🎧 AI Soundscape Suggestion: ${data.suggestion}`);
+        setSoundscapeSuggestion(data.suggestion);
+      } else {
+        console.error('❌ Failed to get soundscape suggestion:', data.error);
+      }
+    } catch (err) {
+      console.error('❌ Soundscape flow failed:', err);
+    }
+  }
+  // Add logic for other flows later ( breathing)
 };
   const [submitText, setText] = useState('Type your mood')
 
@@ -143,6 +162,7 @@ const handleSmartFlow = async (type: string) => {
                 <Button onClick={() => handleSmartFlow('soundscapes')} variant="outline">
                   🎧 Soundscapes
                 </Button>
+                {soundscapeSuggestion && (<div className="text-muted-foreground px-6 text-base mt-2">{soundscapeSuggestion}</div>)}
                 <Button onClick={() => handleSmartFlow('breathing')} variant="outline">
                   🌬️ Breathing
                 </Button>
