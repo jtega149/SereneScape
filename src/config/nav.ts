@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { LayoutDashboard, Brain, Headphones, Wind, Sparkles, SunMoon } from "lucide-react";
+import { LayoutDashboard, Brain, Headphones, Wind, Sparkles, SunMoon, Scroll} from "lucide-react";
 
 export interface NavItem {
   title: string;
@@ -35,6 +35,11 @@ export const mainNavItems: NavItem[] = [
     href: "/affirmations",
     icon: Sparkles, // or Quote
   },
+  {
+    title: "Psychological Test",
+    href: "/spt",
+    icon: Scroll,
+  }
 ];
 
 export const siteConfig = {
