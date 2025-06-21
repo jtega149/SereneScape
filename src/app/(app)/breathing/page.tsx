@@ -52,6 +52,7 @@ export default function BreathingPage() {
   const [isRunning, setIsRunning] = React.useState(false);
   const [currentStep, setCurrentStep] = React.useState(0);
   const [timeLeft, setTimeLeft] = React.useState(selectedTechnique.pattern[0].duration);
+  const [cycleCount, setCycleCount] = React.useState(0);
 
   React.useEffect(() => {
     if (!isRunning) return;
@@ -61,15 +62,26 @@ export default function BreathingPage() {
         if (prevTime > 1) {
           return prevTime - 1;
         } else {
-          // Move to next step
-          setCurrentStep((prevStep) => {
-            const nextStep = (prevStep + 1) % selectedTechnique.pattern.length;
-            setTimeLeft(selectedTechnique.pattern[nextStep].duration);
-            return nextStep;
-          });
-          // This will be set in the next tick by setCurrentStep's effect
-          return selectedTechnique.pattern[(currentStep + 1) % selectedTechnique.pattern.length].duration;
-        }
+            setCurrentStep((prevStep) => {
+              const nextStep = prevStep + 1;
+              // If we finished the last step in the pattern
+              if (nextStep === selectedTechnique.pattern.length) {
+                setCycleCount((prevCount) => {
+                  const newCount = prevCount + 1;
+                    if (newCount >= 1) {
+                      setIsRunning(false); // stop after 1 full cycle
+                    }
+                  return newCount;
+                });
+                setTimeLeft(selectedTechnique.pattern[0].duration); // restart for next cycle if continuing
+                return 0; // reset step index
+              } else {
+                setTimeLeft(selectedTechnique.pattern[nextStep].duration);
+                return nextStep;
+              }
+            });
+            return 0;
+          }
       });
     }, 1000);
 
