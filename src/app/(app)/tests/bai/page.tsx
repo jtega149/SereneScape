@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
+
 const NUM_QUESTIONS = 21;
 const questions = [
     "Have you had any feeling of numbness or tingling?",
@@ -14,7 +15,7 @@ const questions = [
     "Have you been unable to relax?",
     "Have you been in fear of the worst happening?",
     "Has your heart been pounding / racing?",
-    "Have you veen feeling unsteady?",
+    "Have you been feeling unsteady?",
     "Have you been feeling terrifed or afraid?",
     "Have you been feeling nervous?",
     "Have you experienced feelings of choking lately?",
@@ -24,11 +25,11 @@ const questions = [
     "Have you had difficulty in breathing?",
     "Do you have fears of dying?",
     "Are you scared?",
-    "Have you been expericing indigestion?",
+    "Have you been experiencing indigestion?",
     "Have you veen feeling lightheaded or like you might faint?",
     "Do you experience face flushing?",
     "Have you had the cold sweats?",
-    "Do you experience unusual diziness?"
+    "Do you experience unusual dizziness?"
 ];
 
 export default function BaiPage() {
@@ -50,9 +51,17 @@ export default function BaiPage() {
     setAnswers(newAnswers);
   };
 
-  const handleSubmitTest = () => {
+
+  const handleSubmitTest = async () => {
     const score = answers.reduce((sum, answer) => sum + (answer > -1 ? answer : 0), 0);
     setTotalScore(score);
+
+    await fetch('/api/auth/updateScore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bai_score: totalScore }),
+    });
+    
 
     if (score >= 0 && score <= 21) {
       setAnxietyLevel('Low Anxiety');
