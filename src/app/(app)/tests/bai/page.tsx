@@ -56,11 +56,22 @@ export default function BaiPage() {
     const score = answers.reduce((sum, answer) => sum + (answer > -1 ? answer : 0), 0);
     setTotalScore(score);
 
-    await fetch('/api/auth/updateScore', {
+    const response = await fetch('/api/auth/updateScore', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bai_score: totalScore }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bai_score: score }),
+      credentials: 'include', // This is crucial to send cookies
     });
+    if (response.ok) {
+      // Handle successful score update
+      console.log('BAI score updated successfully!');
+    } else {
+      // Handle error
+      const errorData = await response.json();
+      console.log('Error updating BAI score:', errorData.error);
+    }
     
 
     if (score >= 0 && score <= 21) {
