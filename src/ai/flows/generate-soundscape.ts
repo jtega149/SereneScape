@@ -1,32 +1,25 @@
 'use server';
 
-/**
- * @fileOverview Generates a custom soundscape suggestion based on the user's emotional state.
- */
-
-import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { ai } from '@/ai/genkit';
 
+// 1. Define input schema (local only, no export)
 const SoundscapePresetInputSchema = z.object({
   moodDescription: z
     .string()
-    .describe('A natural description of how the user feels.'),
+    .describe("A natural language description of how the user is feeling."),
 });
-export type SoundscapePresetInput = z.infer<typeof SoundscapePresetInputSchema>;
+type SoundscapePresetInput = z.infer<typeof SoundscapePresetInputSchema>;
 
+// 2. Define output schema (local only, no export)
 const SoundscapePresetOutputSchema = z.object({
   suggestion: z
     .string()
-    .describe('Short, friendly advice on which ambient sounds to blend and why.'),
+    .describe("A suggested ambient soundscape based on the user's mood."),
 });
-export type SoundscapePresetOutput = z.infer<typeof SoundscapePresetOutputSchema>;
+type SoundscapePresetOutput = z.infer<typeof SoundscapePresetOutputSchema>;
 
-export async function generateSoundscapePreset(
-  input: SoundscapePresetInput
-): Promise<SoundscapePresetOutput> {
-  return generateSoundscapePresetFlow(input);
-}
-
+// 3. Create the prompt
 const prompt = ai.definePrompt({
   name: 'generateSoundscapePresetPrompt',
   input: { schema: SoundscapePresetInputSchema },
@@ -60,6 +53,7 @@ Do not include extra labels, explanation, or formatting.
 `,
 });
 
+// 4. Define the flow
 const generateSoundscapePresetFlow = ai.defineFlow(
   {
     name: 'generateSoundscapePresetFlow',
@@ -80,3 +74,10 @@ const generateSoundscapePresetFlow = ai.defineFlow(
     return output!;
   }
 );
+
+// 5. Exported async function (valid under `"use server"`)
+export async function generateSoundscapePreset(
+  input: SoundscapePresetInput
+): Promise<SoundscapePresetOutput> {
+  return generateSoundscapePresetFlow(input);
+}

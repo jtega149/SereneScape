@@ -22,9 +22,7 @@ export default function DashboardPage() {
   const [isThinking, setIsThinking] = useState(false);
   const [meditationSuggestion, setMeditationSuggestion] = useState('');
   const [soundscapeSuggestion, setSoundscapeSuggestion] = useState('');
-
-
-
+  const [breathingSuggestion, setBreathingSuggestion] = useState('');
 
   const handleMoodSubmit = async () => {
   setIsThinking(true);
@@ -115,8 +113,25 @@ const handleSmartFlow = async (type: string) => {
     } catch (err) {
       console.error('❌ Soundscape flow failed:', err);
     }
+  } else if (type === 'breathing') {
+    try {
+      const res = await fetch('/api/generate-breathing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moodDescription: moodInput }),
+      });
+
+      const data = await res.json();
+      if (data.suggestion) {
+        console.log(`🌬️ Breathing Suggestion: ${data.suggestion}`);
+        setBreathingSuggestion(data.suggestion);
+      } else {
+        console.error('❌ Failed to get breathing suggestion:', data.error);
+      }
+    } catch (err) {
+      console.error('❌ Breathing flow failed:', err);
+    }
   }
-  // Add logic for other flows later ( breathing)
 };
   const [submitText, setText] = useState('Type your mood')
 
@@ -166,6 +181,7 @@ const handleSmartFlow = async (type: string) => {
                 <Button onClick={() => handleSmartFlow('breathing')} variant="outline">
                   🌬️ Breathing
                 </Button>
+                {breathingSuggestion && (<div className="text-muted-foreground px-6 text-base mt-2">{breathingSuggestion}</div>)}
                 <Button asChild variant="default">
                   <Link href="/affirmations">✨ Affirmations</Link>
                 </Button>
