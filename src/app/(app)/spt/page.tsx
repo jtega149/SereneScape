@@ -23,9 +23,6 @@ export default function SptPage() {
                 <Button asChild variant="ghost" className="font-body text-accent hover:text-accent-foreground hover:bg-accent">
                   <Link href="/tests/bai">Start Test</Link>
                 </Button>
-                <Button asChild variant="link" className="font-body text-muted-foreground hover:text-foreground">
-                  <Link href="tests/history/bai">View History</Link>
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -42,9 +39,6 @@ export default function SptPage() {
               <div className="flex flex-col items-center space-y-2">
                 <Button asChild variant="ghost" className="font-body text-accent hover:text-accent-foreground hover:bg-accent">
                   <Link href="/tests/bdi">Start Test</Link>
-                </Button>
-                <Button asChild variant="link" className="font-body text-muted-foreground hover:text-foreground">
-                  <Link href="tests/history/bdi">View History</Link>
                 </Button>
               </div>
             </CardContent>
