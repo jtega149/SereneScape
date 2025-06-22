@@ -18,10 +18,19 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
+import pikachu from './pikachu-pfp.gif'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { X } from 'lucide-react';
 import { useEffect } from 'react';
 import { supabase } from '../../../lib/supabase/client';
 
@@ -46,6 +55,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  const [isProfileModalOpen, setIsProfileModalOpen] = React.useState(false);
   
 
   const handleLogout = async () => {
@@ -100,27 +110,39 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </ScrollArea>
             </SidebarContent>
             <SidebarFooter className="p-4 border-t">
-              <div className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
+              <div
+                className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center cursor-pointer"
+                onClick={() => setIsProfileModalOpen(true)}
+              >
                 <Avatar className="h-9 w-9 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:w-8">
                   <AvatarImage
-                    src="https://placehold.co/100x100.png"
+                    //src="https://placehold.co/100x100.png"
+                    src={pikachu.src}
                     alt="User Avatar"
                   />
                   <AvatarFallback>SS</AvatarFallback>
+            
                 </Avatar>
+            
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                   <span className="text-sm font-medium text-foreground">
                     {user?.name || 'Serene User'}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {user?.email}
+            
+ {user?.email}
                   </span>
                 </div>
-                <Button
-                  onClick={handleLogout}
+          
+ <Button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent modal from opening when clicking logout
+                    handleLogout();
+                  }}
                   variant="ghost"
                   size="icon"
                   className="ml-auto group-data-[collapsible=icon]:hidden"
+            
                 >
                   <LogOut className="h-4 w-4" />
                 </Button>
@@ -136,6 +158,43 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </SidebarInset>
         </div>
       </SidebarProvider>
+
+      <AlertDialog open={isProfileModalOpen} onOpenChange={setIsProfileModalOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+ <AlertDialogTitle className="flex justify-between items-center">
+            <AlertDialogTitle>User Profile</AlertDialogTitle>
+ <Button
+ size="sm"
+ variant="ghost"
+ onClick={() => setIsProfileModalOpen(false)}
+ >
+ <X className="h-4 w-4" />
+ </Button>
+ </AlertDialogTitle>
+          </AlertDialogHeader>
+          <div className="flex flex-col items-center space-y-4">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={pikachu.src} alt="User Avatar" />
+              <AvatarFallback>SS</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col items-center">
+              <span className="text-lg font-semibold text-foreground">
+                {user?.name || 'Serene User'}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {user?.email}
+              </span>
+            </div>
+            <div className="flex flex-col space-y-2 w-full">
+              <Button variant="outline" className="w-full">Change Profile Picture</Button>
+             
+            </div>
+          </div>
+
+
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
