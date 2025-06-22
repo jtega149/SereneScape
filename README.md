@@ -1,10 +1,10 @@
-## Serene Scape
+## SereneScape
 
-MindfulWell: AI-Powered Mental Wellness Companion
+SereneScape: AI-Powered Mental Wellness Companion
 
 ## Description
 
-MindfulWell is a comprehensive AI-powered web application designed to support mental well-being. It leverages the power of Genkit and Google AI to provide personalized meditations, breathing exercises, affirmations, soundscapes, and mood tracking features. The application aims to create a calming and supportive environment for users to manage stress, anxiety, and improve overall mental health.
+SereneScape is a comprehensive AI-powered web application designed to support mental well-being. It leverages the power of Genkit and Google AI to provide personalized meditations, breathing exercises, affirmations, soundscapes, and mood tracking features. The application aims to create a calming and supportive environment for users to manage stress, anxiety, and improve overall mental health.
 
 ## Features
 
