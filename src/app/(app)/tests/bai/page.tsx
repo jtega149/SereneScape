@@ -1,35 +1,37 @@
-"use client";
+'use client';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '../../../../../lib/supabase/client';
 
 const NUM_QUESTIONS = 21;
+
 const questions = [
-    "Have you had any feeling of numbness or tingling?",
-    "Have you been feeling hot?",
-    "Have you been feeling wobbliness in the legs?",
-    "Have you been unable to relax?",
-    "Have you been in fear of the worst happening?",
-    "Has your heart been pounding / racing?",
-    "Have you been feeling unsteady?",
-    "Have you been feeling terrifed or afraid?",
-    "Have you been feeling nervous?",
-    "Have you experienced feelings of choking lately?",
-    "Do you experience frequent hand trembling?",
-    "Do you feel shaky at times?",
-    "Do you have a fear of losing control?",
-    "Have you had difficulty in breathing?",
-    "Do you have fears of dying?",
-    "Are you scared?",
-    "Have you been experiencing indigestion?",
-    "Have you veen feeling lightheaded or like you might faint?",
-    "Do you experience face flushing?",
-    "Have you had the cold sweats?",
-    "Do you experience unusual dizziness?"
+  "Have you had any feeling of numbness or tingling?",
+  "Have you been feeling hot?",
+  "Have you been feeling wobbliness in the legs?",
+  "Have you been unable to relax?",
+  "Have you been in fear of the worst happening?",
+  "Has your heart been pounding / racing?",
+  "Have you been feeling unsteady?",
+  "Have you been feeling terrified or afraid?",
+  "Have you been feeling nervous?",
+  "Have you experienced feelings of choking lately?",
+  "Do you experience frequent hand trembling?",
+  "Do you feel shaky at times?",
+  "Do you have a fear of losing control?",
+  "Have you had difficulty in breathing?",
+  "Do you have fears of dying?",
+  "Are you scared?",
+  "Have you been experiencing indigestion?",
+  "Have you been feeling lightheaded or like you might faint?",
+  "Do you experience face flushing?",
+  "Have you had the cold sweats?",
+  "Do you experience unusual dizziness?"
 ];
 
 export default function BaiPage() {
@@ -38,6 +40,9 @@ export default function BaiPage() {
   const [showResult, setShowResult] = useState(false);
   const [totalScore, setTotalScore] = useState(0);
   const [anxietyLevel, setAnxietyLevel] = useState('');
+  
+  const { user, userId } = useAuth();
+  
 
   const handleBeginTest = () => {
     setShowTest(true);
@@ -51,34 +56,31 @@ export default function BaiPage() {
     setAnswers(newAnswers);
   };
 
-
   const handleSubmitTest = async () => {
     const score = answers.reduce((sum, answer) => sum + (answer > -1 ? answer : 0), 0);
     setTotalScore(score);
 
-    const response = await fetch('/api/auth/updateScore', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ bai_score: score }),
-      credentials: 'include', // This is crucial to send cookies
-    });
-    if (response.ok) {
-      // Handle successful score update
-      console.log('BAI score updated successfully!');
-    } else {
-      // Handle error
-      const errorData = await response.json();
-      console.log('Error updating BAI score:', errorData.error);
+    if (!user) {
+      alert('You must be logged in to save your results.');
+      return;
     }
-    
 
-    if (score >= 0 && score <= 21) {
+    const { error } = await supabase
+      .from('bai_scores')
+      .insert([{ user_id: userId, bai_score: score }]);
+
+    if (error) {
+      console.error('Error saving score:', error.message);
+      alert(`Failed to save score: ${error.message}`);
+    } else {
+      console.log('BAI score saved successfully!');
+    }
+
+    if (score <= 21) {
       setAnxietyLevel('Low Anxiety');
-    } else if (score >= 22 && score <= 35) {
+    } else if (score <= 35) {
       setAnxietyLevel('Moderate Anxiety');
-    } else if (score >= 36) {
+    } else {
       setAnxietyLevel('Potentially Concerning Levels of Anxiety');
     }
 
@@ -97,12 +99,12 @@ export default function BaiPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p>The Beck Anxiety Inventory (BAI) is a 21-question survey designed to measure the severity of anxiety symptoms.</p>
-            <p>For each question, please select the option that best describes how much you have been bothered by the symptom over the past week, including today. The options are:</p>
+            <p>For each question, select how much you’ve been bothered by the symptom over the past week:</p>
             <ul>
               <li><strong>0:</strong> Not at all</li>
-              <li><strong>1:</strong> Mildly, but it didn’t bother me much</li>
-              <li><strong>2:</strong> Moderately – it wasn’t pleasant at times</li>
-              <li><strong>3:</strong> Severely – it bothered me a lot</li>
+              <li><strong>1:</strong> Mildly</li>
+              <li><strong>2:</strong> Moderately</li>
+              <li><strong>3:</strong> Severely</li>
             </ul>
             <div className="text-center">
               <Button onClick={handleBeginTest}>Begin Test</Button>
@@ -117,17 +119,38 @@ export default function BaiPage() {
             <Card key={index}>
               <CardContent className="pt-6">
                 <p className="mb-4 font-semibold">{`${index + 1}. ${question}`}</p>
-                <RadioGroup onValueChange={(value) => handleAnswerChange(index, value)} value={answers[index].toString()} className="flex flex-col space-y-2">
-                  <div className="flex items-center space-x-2"><RadioGroupItem value="0" id={`q${index}-0`} /><Label htmlFor={`q${index}-0`}>0 - Not at all</Label></div>
-                  <div className="flex items-center space-x-2"><RadioGroupItem value="1" id={`q${index}-1`} /><Label htmlFor={`q${index}-1`}>1 - Mildly, but it didn’t bother me much</Label></div>
-                  <div className="flex items-center space-x-2"><RadioGroupItem value="2" id={`q${index}-2`} /><Label htmlFor={`q${index}-2`}>2 - Moderately – it wasn’t pleasant at times</Label></div>
-                  <div className="flex items-center space-x-2"><RadioGroupItem value="3" id={`q${index}-3`} /><Label htmlFor={`q${index}-3`}>3 - Severely – it bothered me a lot</Label></div>
+                <RadioGroup
+                  onValueChange={(value) => handleAnswerChange(index, value)}
+                  value={answers[index] !== -1 ? answers[index].toString() : undefined}
+                  className="flex flex-col space-y-2"
+                >
+                  {[0, 1, 2, 3].map((val) => (
+                    <div className="flex items-center space-x-2" key={val}>
+                      <RadioGroupItem value={val.toString()} id={`q${index}-${val}`} />
+                      <Label htmlFor={`q${index}-${val}`}>
+                        {`${val} - ${
+                          val === 0
+                            ? 'Not at all'
+                            : val === 1
+                            ? 'Mildly'
+                            : val === 2
+                            ? 'Moderately'
+                            : 'Severely'
+                        }`}
+                      </Label>
+                    </div>
+                  ))}
                 </RadioGroup>
               </CardContent>
             </Card>
           ))}
           <div className="text-center mt-8">
-            <Button onClick={handleSubmitTest} disabled={answers.some(answer => answer === -1)}>Submit Test</Button>
+            <Button
+              onClick={handleSubmitTest}
+              disabled={answers.some((answer) => answer === -1)}
+            >
+              Submit Test
+            </Button>
           </div>
         </div>
       )}
@@ -140,7 +163,6 @@ export default function BaiPage() {
           <CardContent className="space-y-4">
             <p className="text-xl font-semibold">Your total score is: {totalScore}</p>
             <p className="text-lg">Anxiety Level: <span className="font-bold">{anxietyLevel}</span></p>
-            {/* You might add more detailed interpretation or next steps here */}
           </CardContent>
         </Card>
       )}

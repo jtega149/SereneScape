@@ -11,12 +11,15 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null)
 
   useEffect(() => {
     const email = localStorage.getItem("serene.user.email");
     const name = localStorage.getItem("serene.user.name");
     const access = localStorage.getItem("supabase.access_token");
     const refresh = localStorage.getItem("supabase.refresh_token");
+    const id = localStorage.getItem("serene.user.id")
+    
 
     if (email) {
       setUser({ email, name: name || undefined });
@@ -27,6 +30,10 @@ export function useAuth() {
     if (refresh) {
       setRefreshToken(refresh);
     }
+
+    if (id) {
+        setUserId(id)
+    }
   }, []);
 
   const logout = () => {
@@ -34,10 +41,12 @@ export function useAuth() {
     localStorage.removeItem("supabase.refresh_token");
     localStorage.removeItem("serene.user.email");
     localStorage.removeItem("serene.user.name");
+    localStorage.removeItem("serene.user.id");
     setUser(null);
     setAccessToken(null);
     setRefreshToken(null);
+    setUserId(null)
   };
   
-   return { user, accessToken, refreshToken, logout };
+   return { user, userId, accessToken, refreshToken, logout };
 }
