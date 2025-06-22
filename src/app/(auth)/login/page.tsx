@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SunMoon } from 'lucide-react';
+import { supabase } from '../../../../lib/supabase/client';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -23,33 +24,39 @@ export default function LoginPage() {
   const router = useRouter();
 
   async function handleLogin(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include', // important: to send/receive cookies!
-      });
+  try {
+    const { data, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      const data = await res.json();
-
-      if (res.ok) {
-        // No need to store tokens manually — cookies handle that.
-        router.push('/dashboard');
-      } else {
-        setError(data.error || 'Login failed');
+    if (loginError) {
+      setError(loginError.message);
+    } else {
+      if (data.session) {
+        localStorage.setItem("supabase.access_token", data.session.access_token);
+        localStorage.setItem("supabase.refresh_token", data.session.refresh_token);
       }
-    } catch (err) {
-      console.error(err);
-      setError('Unexpected error occurred');
-    } finally {
-      setLoading(false);
+
+      if (data.user) {
+        localStorage.setItem("serene.user.email", data.user.email || "");
+        localStorage.setItem("serene.user.name", (data.user.user_metadata?.name as string) || "");
+        localStorage.setItem("serene.user.id", data.user.id);
+      }
+
+      router.push("/dashboard");
     }
+  } catch (err) {
+    console.error(err);
+    setError("Unexpected error occurred");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className="flex items-center justify-center min-h-screen">

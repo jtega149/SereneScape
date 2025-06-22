@@ -1,16 +1,29 @@
+'use client'
+
 // app/page.tsx (Server Component)
-import { redirect } from 'next/navigation';
-import { createClient } from '../../lib/supabase/server';
+import { redirect, useRouter } from 'next/navigation';
+import { supabase } from '../../lib/supabase/client';
 
 import LandingClient from './LandingClient'; // import the client component
+import { useEffect } from 'react';
 
-export default async function LandingPage() {
-  const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
+export default function LandingPage() {
+  const router = useRouter();
 
-  if (session?.user) {
-    redirect('/dashboard');
-  }
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        router.push('/dashboard');
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase, router]);
 
   return <LandingClient />;
 }

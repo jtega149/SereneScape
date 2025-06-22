@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { mainNavItems, siteConfig } from "@/config/nav";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import * as React from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { mainNavItems, siteConfig } from '@/config/nav';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
   SidebarProvider,
   Sidebar,
@@ -17,23 +17,24 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
-} from "@/components/ui/sidebar";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LogOut } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+} from '@/components/ui/sidebar';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
+import { supabase } from '../../../lib/supabase/client';
 
 function Prefetcher() {
   const router = useRouter();
 
   useEffect(() => {
     const routes = [
-      "/dashboard",
-      "/meditations",
-      "/soundscapes",
-      "/breathing",
-      "/affirmations",
+      '/dashboard',
+      '/meditations',
+      '/soundscapes',
+      '/breathing',
+      '/affirmations',
     ];
     routes.forEach((route) => router.prefetch(route));
   }, []);
@@ -45,21 +46,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
+  
 
   const handleLogout = async () => {
-    const res = await fetch("/api/auth/logout", {
-      method: "POST",
-    });
-
-    if (res.ok) {
-      logout();
-      router.push("/login");
-    }
+    await supabase.auth.signOut();
+    logout();
+    router.push('/login');
   };
 
   return (
     <>
-      <Prefetcher /> {/* preLoading */}
+      <Prefetcher />
       <SidebarProvider defaultOpen>
         <div className="flex min-h-screen">
           <Sidebar collapsible="icon" className="border-r">
@@ -83,13 +80,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         asChild
                         isActive={
                           pathname === item.href ||
-                          (item.href !== "/dashboard" &&
-                            pathname.startsWith(item.href))
+                          (item.href !== '/dashboard' && pathname.startsWith(item.href))
                         }
                         tooltip={{
                           children: item.title,
-                          side: "right",
-                          align: "center",
+                          side: 'right',
+                          align: 'center',
                         }}
                         className="font-body"
                       >
@@ -109,13 +105,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   <AvatarImage
                     src="https://placehold.co/100x100.png"
                     alt="User Avatar"
-                    data-ai-hint="person user"
                   />
                   <AvatarFallback>SS</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col group-data-[collapsible=icon]:hidden">
                   <span className="text-sm font-medium text-foreground">
-                    {user?.name || "Serene User"}
+                    {user?.name || 'Serene User'}
                   </span>
                   <span className="text-xs text-muted-foreground">
                     {user?.email}
@@ -135,11 +130,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarInset className="flex-1 flex flex-col">
             <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:h-16 sm:px-6">
               <SidebarTrigger className="md:hidden" />
-              <div className="flex-1">{/* Breadcrumbs or title */}</div>
+              <div className="flex-1">{/* breadcrumbs if needed */}</div>
             </header>
-            <main className="flex-1 overflow-y-auto p-4 sm:p-6">
-              {children}
-            </main>
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
           </SidebarInset>
         </div>
       </SidebarProvider>

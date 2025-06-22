@@ -14,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SunMoon } from 'lucide-react';
+import { supabase } from '../../../../lib/supabase/client';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -28,22 +29,24 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
-    console.log(fullName, email, password)
-
     try {
-      const res = await fetch('/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: fullName, email, password }),
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: fullName,
+          },
+        },
       });
 
-      if (res.ok) {
-        router.push('/login'); // Redirect after signup
+      if (signUpError) {
+        setError(signUpError.message);
       } else {
-        const data = await res.json();
-        setError(data.message || 'Signup failed');
+        router.push('/login');
       }
     } catch (err) {
+      console.error(err);
       setError('Unexpected error occurred');
     } finally {
       setLoading(false);
