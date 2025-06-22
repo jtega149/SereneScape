@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '../../../../../lib/supabaseClient';
+import { createClient } from '../../../../../lib/supabase/server';
 
 export async function POST(req: NextRequest) {
+
+  const supabase = await createClient()
   const { email, password } = await req.json();
 
   const { data: sessionData, error: loginError } =
     await supabase.auth.signInWithPassword({ email, password });
 
   if (loginError) {
+    console.log(loginError)
     return NextResponse.json({ error: loginError.message }, { status: 401 });
   }
 
