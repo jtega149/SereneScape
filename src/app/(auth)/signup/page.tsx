@@ -28,6 +28,8 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
+    console.log(fullName, email, password)
+
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',

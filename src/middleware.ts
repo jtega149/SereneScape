@@ -9,12 +9,15 @@ export function middleware(req: NextRequest) {
   const publicPaths = ['/signup', '/login', '/']; // paths that don’t require auth
 
   if (!token && !publicPaths.includes(pathname)) {
-    return NextResponse.redirect(new URL('/signup', req.url));
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/app/:path*'], // only protect /app routes
+  matcher: [
+    '/app/:path*',
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

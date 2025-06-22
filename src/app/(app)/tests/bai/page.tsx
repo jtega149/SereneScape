@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
 
 
 const NUM_QUESTIONS = 21;
@@ -39,6 +40,8 @@ export default function BaiPage() {
   const [totalScore, setTotalScore] = useState(0);
   const [anxietyLevel, setAnxietyLevel] = useState('');
 
+  const { accessToken } = useAuth()
+
   const handleBeginTest = () => {
     setShowTest(true);
     setShowResult(false);
@@ -56,14 +59,15 @@ export default function BaiPage() {
     const score = answers.reduce((sum, answer) => sum + (answer > -1 ? answer : 0), 0);
     setTotalScore(score);
 
-    const response = await fetch('/api/auth/updateScore', {
+    const response = await fetch('/api/tests/add_bai_score', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', 
+        'Authorization': `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({ bai_score: score }),
-      credentials: 'include', // This is crucial to send cookies
+      body: JSON.stringify({ bai_score: score })
     });
+    
     if (response.ok) {
       // Handle successful score update
       console.log('BAI score updated successfully!');
