@@ -35,6 +35,7 @@ SereneScape is a comprehensive AI-powered web application designed to support me
 3. ```
    npm install @supabase/supabase-js @supabase/ssr
    ```
+4. Next Step
 
 
 To get started, take a look at src/app/page.tsx.
